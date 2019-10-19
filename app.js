@@ -1,6 +1,7 @@
 const express= require('express');
 const jwt=require('jsonwebtoken');
 const bodyParser = require('body-parser');
+const sharp = require('sharp');
 
 const app=express();
 app.use(bodyParser.json());
@@ -37,6 +38,28 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 var cpUpload = upload.fields([{ name: 'file'}])
+
+
+resize_image= function(req, res, cb){
+    for (var i = 0; i < req.files.length; i++) {
+       
+        let inputFile  = 'uploads/'+req.files[i].filename;
+        let outputFile = 'uploads/resizeImage/'+req.files[i].filename;
+        
+        sharp(inputFile).resize({ height: 780 }).toFile(outputFile)
+            .then(function(newFileInfo) {
+                // newFileInfo holds the output file properties
+                //console.log("Success");;
+                cb(null, newFileInfo)
+            })
+            .catch(function(err) {
+                //console.log("Error occured");
+                throw err;
+            });    
+    }
+
+    
+}
 
 
 
@@ -98,7 +121,18 @@ app.post('/api/fileupload',upload.single('file'), (req, res)=>{
 })
 
 
-app.post('/api/multipleFile', cpUpload, (req, res)=>{
+app.post('/api/multipleFile', cpUpload, resize_image, (req, res)=>{
+    
+    //let fileValue=req.file;
+    let bodyValue=req.body;
+    //console.log(fileValue);
+    console.log(bodyValue);
+    res.json({
+        "message":"image upload Successfully"
+    })
+})
+
+app.post('/api/resizeImage', upload.array('file', 10), resize_image, (req, res)=>{
     
     //let fileValue=req.file;
     let bodyValue=req.body;
