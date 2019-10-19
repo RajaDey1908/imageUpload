@@ -34,7 +34,9 @@ var storage = multer.diskStorage({
 })
 
   
-  var upload = multer({ storage: storage });
+var upload = multer({ storage: storage });
+
+var cpUpload = upload.fields([{ name: 'file'}])
 
 
 
@@ -89,6 +91,18 @@ app.post('/api/fileupload',upload.single('file'), (req, res)=>{
     let fileValue=req.file;
     let bodyValue=req.body;
     console.log(fileValue);
+    console.log(bodyValue);
+    res.json({
+        "message":"image upload Successfully"
+    })
+})
+
+
+app.post('/api/multipleFile', cpUpload, (req, res)=>{
+    
+    //let fileValue=req.file;
+    let bodyValue=req.body;
+    //console.log(fileValue);
     console.log(bodyValue);
     res.json({
         "message":"image upload Successfully"
